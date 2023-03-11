@@ -6,9 +6,14 @@ from bookkeeper.models.category import Category
 from bookkeeper.models.expense import Expense
 from bookkeeper.repository.memory_repository import MemoryRepository
 from bookkeeper.utils import read_tree
+from bookkeeper.repository.sqlite_repository import SQLiteRepository
+import os
 
-cat_repo = MemoryRepository[Category]()
-exp_repo = MemoryRepository[Expense]()
+cwd = os.getcwd()
+
+db_file = os.path.join(cwd, 'bookkeeper', 'repository', 'test_db.db')
+cat_repo = SQLiteRepository(db_file=db_file, cls=Category)
+exp_repo = SQLiteRepository(db_file=db_file, cls=Expense)
 
 cats = '''
 продукты
@@ -20,8 +25,32 @@ cats = '''
 одежда
 '''.splitlines()
 
-Category.create_from_tree(read_tree(cats), cat_repo)
+print('ADD')
+#Category.create_from_tree(read_tree(cats), cat_repo)
 
+print('GET')
+print(cat_repo.get(5))
+
+print('GET ALL')
+print(*cat_repo.get_all(), sep='\n')
+print('GET ALL WHERE')
+print(*cat_repo.get_all({'parent': 1}), sep='\n')
+
+print('UPDATE')
+obj = Category(name='одежда', parent=1, pk=7)
+cat_repo.update(obj)
+print(*cat_repo.get_all(), sep='\n')
+obj = Category(name='одежда', parent=None, pk=7)
+print(*cat_repo.get_all(), sep='\n')
+
+print('DELETE')
+obj = Category(name='обувь', parent=None)
+cat_repo.add(obj)
+print(*cat_repo.get_all(), sep='\n')
+cat_repo.delete(pk=8)
+print(*cat_repo.get_all(), sep='\n')
+
+"""
 while True:
     try:
         cmd = input('$> ')
@@ -43,3 +72,4 @@ while True:
         exp = Expense(int(amount), cat.pk)
         exp_repo.add(exp)
         print(exp)
+"""
