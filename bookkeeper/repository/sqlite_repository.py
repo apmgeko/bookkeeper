@@ -1,10 +1,10 @@
 import sqlite3
 from inspect import get_annotations
-from bookkeeper.models.category import Category
 from bookkeeper.repository.abstract_repository \
-import AbstractRepository, T
+    import AbstractRepository, T
 from typing import Any
 from datetime import datetime
+
 
 class SQLiteRepository(AbstractRepository[T]):
     def __init__(self, db_file: str, cls: type) -> None:
@@ -16,7 +16,7 @@ class SQLiteRepository(AbstractRepository[T]):
         print(f'self.fields = {self.fields}')
         self.last_pk = 0
         self.fields.pop('pk')
-    
+
     def add(self, obj: T) -> int:
         names = ', '.join(self.fields.keys())
         p = ', '.join("?" * len(self.fields))
@@ -27,30 +27,27 @@ class SQLiteRepository(AbstractRepository[T]):
             cur.execute('PRAGMA foreign_keys = ON')
 
             ### Create table if not exists
-            #print('names =', names)
-            q =  f'CREATE TABLE IF NOT EXISTS {self.table_name} (pk, {names})'
-            #print(q)
+            q = f'CREATE TABLE IF NOT EXISTS {self.table_name} (pk, {names})'
             cur.execute(q)
 
             ### Retrieve PK
             cur.execute(f'SELECT * FROM {self.table_name}')
             res = cur.fetchall()
-            self.last_pk= len(res)
+            self.last_pk = len(res)
             pk = self.last_pk + 1
-            #print(f'pk = {pk}')
 
             ### Add data to table
             q = f'INSERT INTO {self.table_name} (pk, {names}) VALUES({pk}, {p})'
-            #print(q, values)
             cur.execute(q, values)
             obj.pk = cur.lastrowid
             self.last_pk = obj.pk
-            #print(f'Done: self.last_pk = {self.last_pk}')
         con.close()
         return obj.pk
 
     def build_object(self, fields: dict[str, type], values: list[Any]) -> T:
-        '''Returns an object with specified qualities from the DB'''
+        '''
+        Returns an object with specified qualities from the DB
+        '''
         class_arguments = {}
 
         for field_name, field_value in zip(fields.keys(), values[1:]):
@@ -66,15 +63,15 @@ class SQLiteRepository(AbstractRepository[T]):
         return obj
 
     def get(self, pk: int) -> T | None:
-        """ Получить объект по id """
+        """
+        Получить объект по id
+        """
         with sqlite3.connect(self.db_file) as con:
             cur = con.cursor()
             cur.execute('PRAGMA foreign_keys = ON')
             cur.execute(f'SELECT * FROM {self.table_name} WHERE pk = (?)', [pk])
             res = cur.fetchall()
         con.close()
-        #print('pk =', pk)
-        #print('res =', res)
         if res == []:
             return None
         else:
@@ -90,7 +87,7 @@ class SQLiteRepository(AbstractRepository[T]):
         with sqlite3.connect(self.db_file) as con:
             cur = con.cursor()
             cur.execute('PRAGMA foreign_keys = ON')
-            if where == None:
+            if where is None:
                 cur.execute(f'SELECT * FROM {self.table_name}')
             else:
                 fields, vals = list(where.keys()), list(where.values())
@@ -108,7 +105,7 @@ class SQLiteRepository(AbstractRepository[T]):
         """ Обновить данные об объекте. Объект должен содержать поле pk. """
         if not obj.pk:
             raise ValueError(f'Object {obj} does not have pk.')
-        
+
         pk = obj.pk
         names = ', '.join(f'{f} = ?' for f in self.fields.keys())
         values = [getattr(obj, x) for x in self.fields]
@@ -119,7 +116,6 @@ class SQLiteRepository(AbstractRepository[T]):
             cur.execute('PRAGMA foreign_keys = ON')
             q = f'UPDATE {self.table_name} SET ' + names + ' WHERE pk = ?'
             cur.execute(q, values)
-            res = cur.fetchall()
         con.close()
 
     def delete(self, pk: int) -> None:
@@ -128,6 +124,5 @@ class SQLiteRepository(AbstractRepository[T]):
             cur = con.cursor()
             cur.execute('PRAGMA foreign_keys = ON')
             cur.execute(f'DELETE FROM {self.table_name} WHERE pk = ?', [pk])
-            res = cur.fetchall()
         con.close()
         self.last_pk -= 1
