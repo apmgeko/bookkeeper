@@ -41,6 +41,7 @@ obj = Category(name='одежда', parent=1, pk=7)
 cat_repo.update(obj)
 print(*cat_repo.get_all(), sep='\n')
 obj = Category(name='одежда', parent=None, pk=7)
+cat_repo.update(obj)
 print(*cat_repo.get_all(), sep='\n')
 
 print('DELETE')

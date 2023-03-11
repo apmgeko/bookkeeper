@@ -9,27 +9,43 @@ from datetime import datetime
 class SQLiteRepository(AbstractRepository[T]):
     def __init__(self, db_file: str, cls: type) -> None:
         self.db_file = db_file
+        self.cls = cls
         self.table_name = cls.__name__.lower()
         self.fields = get_annotations(cls, eval_str=True)
+        print(f'cls = {cls}')
+        print(f'self.fields = {self.fields}')
+        self.last_pk = 0
         self.fields.pop('pk')
-        self.cls = cls
     
     def add(self, obj: T) -> int:
         names = ', '.join(self.fields.keys())
         p = ', '.join("?" * len(self.fields))
         values = [getattr(obj, x) for x in self.fields]
+
         with sqlite3.connect(self.db_file) as con:
             cur = con.cursor()
             cur.execute('PRAGMA foreign_keys = ON')
-            #print(f'fields: {self.fields}')
-            
-            try:
-                cur.execute(f'CREATE TABLE {self.table_name} ({names})')
-            except sqlite3.OperationalError:
-                pass
-            
-            cur.execute(f'INSERT INTO {self.table_name} ({names}) VALUES({p})', values)
+
+            ### Create table if not exists
+            #print('names =', names)
+            q =  f'CREATE TABLE IF NOT EXISTS {self.table_name} (pk, {names})'
+            #print(q)
+            cur.execute(q)
+
+            ### Retrieve PK
+            cur.execute(f'SELECT * FROM {self.table_name}')
+            res = cur.fetchall()
+            self.last_pk= len(res)
+            pk = self.last_pk + 1
+            #print(f'pk = {pk}')
+
+            ### Add data to table
+            q = f'INSERT INTO {self.table_name} (pk, {names}) VALUES({pk}, {p})'
+            #print(q, values)
+            cur.execute(q, values)
             obj.pk = cur.lastrowid
+            self.last_pk = obj.pk
+            #print(f'Done: self.last_pk = {self.last_pk}')
         con.close()
         return obj.pk
 
@@ -41,7 +57,7 @@ class SQLiteRepository(AbstractRepository[T]):
             field_type = fields[field_name]
 
             if field_type == datetime:
-                field_value = datetime.strptime(field_value, self.DEFAULT_DATE_FORMAT)
+                field_value = datetime.strptime(field_value, "%Y-%m-%d %H:%M:%S.%f")
 
             class_arguments[field_name] = field_value
 
@@ -57,7 +73,12 @@ class SQLiteRepository(AbstractRepository[T]):
             cur.execute(f'SELECT * FROM {self.table_name} WHERE pk = (?)', [pk])
             res = cur.fetchall()
         con.close()
-        obj = self.build_object(self.fields, res[0])
+        #print('pk =', pk)
+        #print('res =', res)
+        if res == []:
+            return None
+        else:
+            obj = self.build_object(self.fields, res[0])
         return obj
 
     def get_all(self, where: dict[str, Any] | None = None) -> list[T]:
@@ -74,13 +95,14 @@ class SQLiteRepository(AbstractRepository[T]):
             else:
                 fields, vals = list(where.keys()), list(where.values())
                 condition = ' AND '.join(f'{f} = ?' for f in fields)
-
-                cur.execute(f'SELECT * FROM {self.table_name} WHERE ' + condition, vals)
+                q = f'SELECT * FROM {self.table_name} WHERE ' + condition
+                print(q, vals)
+                cur.execute(q, vals)
             res = cur.fetchall()
         con.close()
         objs = [self.get(row[0]) for row in res]
+        print('res:', res)
         return objs
-
 
     def update(self, obj: T) -> None:
         """ Обновить данные об объекте. Объект должен содержать поле pk. """
@@ -108,3 +130,4 @@ class SQLiteRepository(AbstractRepository[T]):
             cur.execute(f'DELETE FROM {self.table_name} WHERE pk = ?', [pk])
             res = cur.fetchall()
         con.close()
+        self.last_pk -= 1
