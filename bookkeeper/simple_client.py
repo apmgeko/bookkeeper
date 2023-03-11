@@ -26,7 +26,7 @@ cats = '''
 '''.splitlines()
 
 print('ADD')
-#Category.create_from_tree(read_tree(cats), cat_repo)
+Category.create_from_tree(read_tree(cats), cat_repo)
 
 print('GET')
 print(cat_repo.get(5))
