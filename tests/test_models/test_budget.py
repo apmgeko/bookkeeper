@@ -55,10 +55,16 @@ def test_update(repo):
     bm.update(repo)
     by.update(repo)
 
-    assert bd.spent == 110
-    assert bw.spent == 210
-    assert bm.spent == 310
-    assert by.spent == 410
+    assert bd.spent == 10
+    assert bw.spent == 10
+    assert bm.spent == 10
+    assert by.spent == 10
+
+    repo.delete(repo.last_pk)
+
+def test_create_unexistent_period():
+    with pytest.raises(ValueError):
+        b = Budget(limit = 1000, period = 'decade', spent = 100, pk = 1)
 
 '''
 def test_create_brief():

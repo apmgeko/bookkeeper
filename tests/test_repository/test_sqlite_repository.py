@@ -90,6 +90,28 @@ def test_cannot_update_without_pk(repo, custom_class):
     with pytest.raises(ValueError):
         repo.update(obj)
 
+def test_get_all_like(repo, custom_class):
+    objects = []
+    for i in range(15):
+        o = custom_class()
+        o.field_int = i
+        o.field_str = 'test'
+        repo.add(o)
+        objects.append(o)
+    assert repo.get_all_like() == objects
+    assert repo.get_all_like({'field_str': 't%'}) == objects
+    got_all_like = repo.get_all_like({'field_int': '1%'})
+    check_list = [objects[1]]
+    for i in range(10, 15):
+        #print(i)
+        check_list.append(objects[i])
+    print(got_all_like)
+    print(check_list)
+    assert got_all_like == check_list
+    for i in range(15):
+        print(repo.last_pk)
+        repo.delete(repo.last_pk)
+
 """
 def test_cannot_add_with_pk(repo, custom_class):
     obj = custom_class()

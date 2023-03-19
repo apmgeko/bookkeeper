@@ -98,6 +98,24 @@ class SQLiteRepository(AbstractRepository[T]):
             res = cur.fetchall()
         con.close()
         objs = [self.get(row[0]) for row in res]
+        #print('res:', res)
+        return objs
+    
+    def get_all_like(self, where: dict[str, Any] | None = None) -> list[T]:
+        with sqlite3.connect(self.db_file) as con:
+            cur = con.cursor()
+            cur.execute('PRAGMA foreign_keys = ON')
+            if where is None:
+                cur.execute(f'SELECT * FROM {self.table_name}')
+            else:
+                fields, vals = list(where.keys()), list(where.values())
+                condition = ' AND '.join(f'{f} LIKE ?' for f in fields)
+                q = f'SELECT * FROM {self.table_name} WHERE ' + condition
+                print(q, vals)
+                cur.execute(q, vals)
+            res = cur.fetchall()
+        con.close()
+        objs = [self.get(row[0]) for row in res]
         print('res:', res)
         return objs
 

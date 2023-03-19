@@ -52,6 +52,13 @@ class AbstractRepository(ABC, Generic[T]):
         """
 
     @abstractmethod
+    def get_all_like(self, where: dict[str, Any] | None = None) -> list[T]:
+        """
+        Получить все записи по некоторому условию
+        where - условие в виде LIKE-словаря {'название_поля': значение + '%'}
+        """
+
+    @abstractmethod
     def update(self, obj: T) -> None:
         """ Обновить данные об объекте. Объект должен содержать поле pk. """
 
