@@ -13,6 +13,9 @@ class ExpensePresenter():
     def update_expense_data(self) -> None:
         self.exp_data = self.exp_repo.get_all()
         self.cat_data = self.cat_repo.get_all()
+        for e in self.exp_data:
+            cat = self.cat_repo.get(e.category)
+            e.category = cat.name
         self.view.set_category_dropdown(self.cat_data)
         self.view.set_expense_table(self.exp_data)
 

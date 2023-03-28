@@ -4,8 +4,14 @@ class TableModel(QtCore.QAbstractTableModel):
     def __init__(self, data):
         super(TableModel, self).__init__()
         self._data = data
-        self.header_names = list(data[0].__dataclass_fields__.keys())
-
+        self.en_ru = {'amount': 'Стоимость',
+             'category': 'Категория',
+             'expense_date': 'Дата',
+             'added_date': 'Добавлено',
+             'comment': 'Комментарий',
+             'pk': 'ID покупки'}
+        dt = data[0].__dataclass_fields__.keys()
+        self.header_names = list(self.en_ru[word] for word in dt)
 
     def headerData(self, section, orientation, role=QtCore.Qt.DisplayRole):
         if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
