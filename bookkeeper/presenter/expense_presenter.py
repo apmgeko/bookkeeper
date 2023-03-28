@@ -1,11 +1,10 @@
 class ExpensePresenter():
-    def __init__(self, model, view, cat_repo, exp_repo) -> None:
+    def __init__(self, model, view, cat_repo, exp_repo, budget_repo) -> None:
         self.view = view
         self.model = model
+        self.budget_repo = budget_repo
         self.exp_repo = exp_repo
         self.cat_repo = cat_repo
-        self.exp_data = exp_repo.get_all()
-        self.cat_data = cat_repo.get_all()
         self.view.on_expense_add_button_clicked(self.handle_add_expense_button_clicked)
         #self.view.on_expense_delete_button_clicked(self.handle_expense_delete_button_clicked)
         #self.view.on_category_edit_button_clicked(self.handle_category_edit_button_clicked)
@@ -13,11 +12,13 @@ class ExpensePresenter():
     def update_expense_data(self) -> None:
         self.exp_data = self.exp_repo.get_all()
         self.cat_data = self.cat_repo.get_all()
+        self.budget_data = self.budget_repo.get_all()
         for e in self.exp_data:
             cat = self.cat_repo.get(e.category)
             e.category = cat.name
         self.view.set_category_dropdown(self.cat_data)
         self.view.set_expense_table(self.exp_data)
+        self.view.set_budget_table(self.budget_data)
 
     def show(self) -> None:
         self.view.show()

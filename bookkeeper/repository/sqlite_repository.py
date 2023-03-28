@@ -12,10 +12,19 @@ class SQLiteRepository(AbstractRepository[T]):
         self.cls = cls
         self.table_name = cls.__name__.lower()
         self.fields = get_annotations(cls, eval_str=True)
-        print(f'cls = {cls}')
-        print(f'self.fields = {self.fields}')
+        #print(f'cls = {cls}')
+        #print(f'self.fields = {self.fields}')
         self.last_pk = 0
         self.fields.pop('pk')
+        names = ', '.join(self.fields.keys())
+        with sqlite3.connect(self.db_file) as con:
+            cur = con.cursor()
+            cur.execute('PRAGMA foreign_keys = ON')
+            ### Create table if not exists
+            q = f'CREATE TABLE IF NOT EXISTS {self.table_name} (pk, {names})'
+            print(q)
+            cur.execute(q)
+        con.close()
 
     def add(self, obj: T) -> int:
         names = ', '.join(self.fields.keys())

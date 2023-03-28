@@ -12,18 +12,18 @@ from bookkeeper.models.expense import Expense
 @dataclass
 class Budget():
     period: str
-    limit: int
+    lim: int
     spent: int = 0
     pk: int = 0
 
-    def __init__(self, period: str, limit: int, spent: int = 0, pk: int = 0):
+    def __init__(self, period: str, lim: int, spent: int = 0, pk: int = 0):
 
         if period == "day" or period == "week" or period == "month" or period == "year":
             self.period = period
         else:
             raise ValueError(f"Unknown period \"{period}\" for budget:\n"
                              + "should be \"day\", \"week\", \"month\" or \"year\".")
-        self.limit = limit
+        self.lim = lim
         self.spent = spent
         self.pk = pk
 

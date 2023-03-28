@@ -1,45 +1,9 @@
-from PySide6 import QtCore, QtWidgets
-import datetime
+from PySide6 import QtWidgets
+from bookkeeper.view.table_view import TableModel
+from bookkeeper.models.budget import Budget
+from bookkeeper.models.category import Category
+from bookkeeper.models.expense import Expense
 
-class TableModel(QtCore.QAbstractTableModel):
-    def __init__(self, data):
-        super(TableModel, self).__init__()
-        self._data = data
-        print('data =', data)
-        self.en_ru = {'amount': 'Стоимость',
-             'category': 'Категория',
-             'expense_date': 'Дата',
-             'added_date': 'Добавлено',
-             'comment': 'Комментарий',
-             'pk': 'ID покупки'}
-        dt = data[0].__dataclass_fields__.keys()
-        self.header_names = list(self.en_ru[word] for word in dt)
-
-    def headerData(self, section, orientation, role=QtCore.Qt.DisplayRole):
-        if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
-            return self.header_names[section]
-        return super().headerData(section, orientation, role)
-
-
-    def data(self, index, role):
-        if role == QtCore.Qt.DisplayRole:
-            # See below for the nested-list data structure.
-            # .row() indexes into the outer list,
-            # .column() indexes into the sub-list
-            fields = list(self._data[index.row()].__dataclass_fields__.keys())
-            val = self._data[index.row()].__getattribute__(fields[index.column()])
-            if type(val) == datetime.datetime:
-                val = str(val)[:19] # cut to YYYY-MM-DD hh:mm:ss format
-            return val
-
-    def rowCount(self, index):
-        # The length of the outer list.
-        return len(self._data)
-
-    def columnCount(self, index):
-        # The following takes the first sub-list, and returns
-        # the length (only works if all rows are an equal length)
-        return len(self._data[0].__dataclass_fields__)
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self) -> None:
@@ -92,8 +56,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setCentralWidget(self.widget)
     
     def set_expense_table(self, data):
-        self.item_model = TableModel(data)
+        self.item_model = TableModel(Expense, data)
         self.expenses_grid.setModel(self.item_model)
+
+    def set_budget_table(self, data):
+        self.item_model = TableModel(Budget, data)
+        self.budget_grid.setModel(self.item_model)
     
     def set_category_dropdown(self, data):
         for cat in data:
