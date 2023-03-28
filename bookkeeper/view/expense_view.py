@@ -1,9 +1,11 @@
 from PySide6 import QtCore, QtWidgets
+import datetime
 
 class TableModel(QtCore.QAbstractTableModel):
     def __init__(self, data):
         super(TableModel, self).__init__()
         self._data = data
+        print('data =', data)
         self.en_ru = {'amount': 'Стоимость',
              'category': 'Категория',
              'expense_date': 'Дата',
@@ -25,7 +27,10 @@ class TableModel(QtCore.QAbstractTableModel):
             # .row() indexes into the outer list,
             # .column() indexes into the sub-list
             fields = list(self._data[index.row()].__dataclass_fields__.keys())
-            return self._data[index.row()].__getattribute__(fields[index.column()])
+            val = self._data[index.row()].__getattribute__(fields[index.column()])
+            if type(val) == datetime.datetime:
+                val = str(val)[:19] # cut to YYYY-MM-DD hh:mm:ss format
+            return val
 
     def rowCount(self, index):
         # The length of the outer list.
@@ -41,31 +46,24 @@ class MainWindow(QtWidgets.QMainWindow):
         super().__init__()
 
         self.model = None
-        self.setWindowTitle('Fuck you leather man')
-        self.resize(500, 500)
-
-        layout = QtWidgets.QVBoxLayout()
-        button = QtWidgets.QPushButton("Yea fuck him")
-        text = QtWidgets.QLabel("Здравствуйте!")
-        layout.addWidget(text)
-        layout.addWidget(button)
+        self.setWindowTitle('Банковский учет')
+        self.resize(700, 500)
 
         self.layout = QtWidgets.QVBoxLayout()
 
         self.layout.addWidget(QtWidgets.QLabel('Последние расходы'))
-
         self.expenses_grid = QtWidgets.QTableView()
         self.layout.addWidget(self.expenses_grid)
 
         self.layout.addWidget(QtWidgets.QLabel('Бюджет'))
-        self.layout.addWidget(QtWidgets.QLabel('<TODO: таблица бюджета>\n\n\n\n\n\n\n\n'))
+        self.budget_grid = QtWidgets.QTableView() #TODO: таблица бюджета
+        self.layout.addWidget(self.budget_grid)
 
         self.bottom_controls = QtWidgets.QGridLayout()
 
         self.bottom_controls.addWidget(QtWidgets.QLabel('Сумма'), 0, 0)
 
         self.amount_line_edit = QtWidgets.QLineEdit()
-
         self.bottom_controls.addWidget(self.amount_line_edit, 0, 1)  # TODO: добавить валидатор
         self.bottom_controls.addWidget(QtWidgets.QLabel('Категория'), 1, 0)
 
