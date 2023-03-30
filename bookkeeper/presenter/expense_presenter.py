@@ -13,12 +13,22 @@ class ExpensePresenter():
         self.exp_data = self.exp_repo.get_all()
         self.cat_data = self.cat_repo.get_all()
         self.budget_data = self.budget_repo.get_all()
-        for e in self.exp_data:
-            cat = self.cat_repo.get(e.category)
-            e.category = cat.name
+        self.show_category_names()
+        self.update_budget_data()
         self.view.set_category_dropdown(self.cat_data)
         self.view.set_expense_table(self.exp_data)
         self.view.set_budget_table(self.budget_data)
+
+    def show_category_names(self) -> None:
+        for e in self.exp_data:
+            cat = self.cat_repo.get(e.category)
+            e.category = cat.name
+
+    def update_budget_data(self) -> None:
+        for budget in self.budget_data:
+            budget.update(self.exp_repo)
+            self.budget_repo.update(budget)
+        self.budget_data = self.budget_repo.get_all()
 
     def show(self) -> None:
         self.view.show()
@@ -30,4 +40,3 @@ class ExpensePresenter():
         exp = self.exp_repo.cls(amount, cat_pk)
         self.exp_repo.add(exp)
         self.update_expense_data()
-    

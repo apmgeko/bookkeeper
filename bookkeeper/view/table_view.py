@@ -7,7 +7,7 @@ class TableModel(QtCore.QAbstractTableModel):
         super(TableModel, self).__init__()
         self._data = data
         print('data =', data)
-        self.en_ru = {'amount': 'Стоимость',
+        self.en_ru = {'amount': 'Стоимость, руб.',
              'category': 'Категория',
              'expense_date': 'Дата',
              'added_date': 'Добавлено',
