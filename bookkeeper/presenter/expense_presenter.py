@@ -7,7 +7,7 @@ class ExpensePresenter():
         self.cat_repo = cat_repo
         self.view.on_expense_add_button_clicked(self.handle_add_expense_button_clicked)
         #self.view.on_expense_delete_button_clicked(self.handle_expense_delete_button_clicked)
-        #self.view.on_category_edit_button_clicked(self.handle_category_edit_button_clicked)
+        self.view.on_category_edit_button_clicked(self.handle_category_edit_button_clicked)
 
     def update_expense_data(self) -> None:
         self.exp_data = self.exp_repo.get_all()
@@ -31,8 +31,8 @@ class ExpensePresenter():
         self.budget_data = self.budget_repo.get_all()
 
     def show(self) -> None:
-        self.view.show()
         self.update_expense_data()
+        self.view.show()
 
     def handle_add_expense_button_clicked(self) -> None:
         amount = self.view.get_amount()
@@ -40,3 +40,7 @@ class ExpensePresenter():
         exp = self.exp_repo.cls(amount, cat_pk)
         self.exp_repo.add(exp)
         self.update_expense_data()
+    
+    def handle_category_edit_button_clicked(self):
+        self.view.show_cats_dialog(self.cat_repo)
+        self.view.set_category_dropdown(self.cat_repo.get_all())

@@ -12,7 +12,7 @@ class TableModel(QtCore.QAbstractTableModel):
              'expense_date': 'Дата',
              'added_date': 'Добавлено',
              'comment': 'Комментарий',
-             'pk': 'ID покупки',
+             'pk': 'ID',
              'period': 'Период',
              'lim': 'Макс. сумма',
              'spent': 'Потрачено'}

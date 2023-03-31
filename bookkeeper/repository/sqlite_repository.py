@@ -12,8 +12,6 @@ class SQLiteRepository(AbstractRepository[T]):
         self.cls = cls
         self.table_name = cls.__name__.lower()
         self.fields = get_annotations(cls, eval_str=True)
-        #print(f'cls = {cls}')
-        #print(f'self.fields = {self.fields}')
         self.last_pk = 0
         self.fields.pop('pk')
         names = ', '.join(self.fields.keys())
@@ -22,7 +20,6 @@ class SQLiteRepository(AbstractRepository[T]):
             cur.execute('PRAGMA foreign_keys = ON')
             ### Create table if not exists
             q = f'CREATE TABLE IF NOT EXISTS {self.table_name} (pk, {names})'
-            print(q)
             cur.execute(q)
         con.close()
 
@@ -102,12 +99,10 @@ class SQLiteRepository(AbstractRepository[T]):
                 fields, vals = list(where.keys()), list(where.values())
                 condition = ' AND '.join(f'{f} = ?' for f in fields)
                 q = f'SELECT * FROM {self.table_name} WHERE ' + condition
-                print(q, vals)
                 cur.execute(q, vals)
             res = cur.fetchall()
         con.close()
         objs = [self.get(row[0]) for row in res]
-        #print('res:', res)
         return objs
     
     def get_all_like(self, where: dict[str, Any] | None = None) -> list[T]:
@@ -120,12 +115,10 @@ class SQLiteRepository(AbstractRepository[T]):
                 fields, vals = list(where.keys()), list(where.values())
                 condition = ' AND '.join(f'{f} LIKE ?' for f in fields)
                 q = f'SELECT * FROM {self.table_name} WHERE ' + condition
-                print(q, vals)
                 cur.execute(q, vals)
             res = cur.fetchall()
         con.close()
         objs = [self.get(row[0]) for row in res]
-        print('res:', res)
         return objs
 
     def update(self, obj: T) -> None:

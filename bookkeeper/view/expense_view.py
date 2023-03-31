@@ -3,6 +3,8 @@ from bookkeeper.view.table_view import TableModel
 from bookkeeper.models.budget import Budget
 from bookkeeper.models.category import Category
 from bookkeeper.models.expense import Expense
+from bookkeeper.view.category_view import CategoryDialog
+from bookkeeper.presenter.category_presenter import CategoryPresenter
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -20,7 +22,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.layout.addWidget(self.expenses_grid)
 
         self.layout.addWidget(QtWidgets.QLabel('Бюджет'))
-        self.budget_grid = QtWidgets.QTableView() #TODO: таблица бюджета
+        self.budget_grid = QtWidgets.QTableView()
         self.layout.addWidget(self.budget_grid)
 
         self.bottom_controls = QtWidgets.QGridLayout()
@@ -28,7 +30,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.bottom_controls.addWidget(QtWidgets.QLabel('Сумма'), 0, 0)
 
         self.amount_line_edit = QtWidgets.QLineEdit()
-        self.bottom_controls.addWidget(self.amount_line_edit, 0, 1)  # TODO: добавить валидатор
+        self.bottom_controls.addWidget(self.amount_line_edit, 0, 1)
         self.bottom_controls.addWidget(QtWidgets.QLabel('Категория'), 1, 0)
 
         self.category_dropdown = QtWidgets.QComboBox()
@@ -37,7 +39,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.category_edit_button = QtWidgets.QPushButton('Редактировать')
         self.bottom_controls.addWidget(self.category_edit_button, 1, 2)
-        #self.category_edit_button.clicked.connect(self.show_cats_dialog)
+        self.category_edit_button.clicked.connect(self.show_cats_dialog)
 
         self.expense_add_button = QtWidgets.QPushButton('Добавить')
         self.bottom_controls.addWidget(self.expense_add_button, 2, 1)
@@ -64,12 +66,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.budget_grid.setModel(self.item_model)
     
     def set_category_dropdown(self, data):
+        self.category_dropdown.clear()
         for cat in data:
             self.category_dropdown.addItem(cat.name, cat.pk)
 
     def on_expense_add_button_clicked(self, slot):
         self.expense_add_button.clicked.connect(slot)
-
+    
     def get_amount(self):
         amount = self.amount_line_edit.text()
         if not amount.isdigit() or int(amount) < 0:
@@ -80,3 +83,13 @@ class MainWindow(QtWidgets.QMainWindow):
         idx = self.category_dropdown.currentIndex()
         cat_pk = self.category_dropdown.itemData(idx)
         return cat_pk
+    
+    def on_category_edit_button_clicked(self, slot):
+        self.category_edit_button.clicked.connect(slot)
+
+    def show_cats_dialog(self, cat_repo):
+        data = cat_repo.get_all()
+        if data:
+            cat_view = CategoryDialog(cat_repo)
+            cat_dlg = CategoryPresenter(self.model, cat_view, cat_repo)
+            cat_dlg.show()
