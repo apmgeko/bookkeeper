@@ -11,6 +11,8 @@ class ExpensePresenter():
         self.view.on_expense_add_button_clicked(self.handle_add_expense_button_clicked)
         self.view.on_expense_delete_button_clicked(self.handle_expense_delete_button_clicked)
         self.view.on_category_edit_button_clicked(self.handle_category_edit_button_clicked)
+        self.view.on_budget_add_button_clicked(self.handle_budget_add_button_clicked)
+        self.view.on_budget_delete_button_clicked(self.handle_budget_delete_button_clicked)
 
     def update_expense_data(self) -> None:
         """
@@ -22,6 +24,7 @@ class ExpensePresenter():
         self.show_category_names()
         self.update_budget_data()
         self.view.set_category_dropdown(self.cat_data)
+        self.view.set_period_dropdown(self.budget_data)
         self.view.set_expense_table(self.exp_data)
         self.view.set_budget_table(self.budget_data)
 
@@ -54,4 +57,19 @@ class ExpensePresenter():
     def handle_expense_delete_button_clicked(self) -> None:
         exp_pk = self.view.get_selected_expense()
         self.exp_repo.delete(exp_pk)
+        self.update_expense_data()
+    
+    def handle_budget_add_button_clicked(self) -> None:
+        lim = self.view.get_lim()
+        period = self.view.get_selected_period()
+        if self.budget_repo.get_all(where={'period': period}) != []:
+            raise ValueError("Бюджет на этот срок уже установлен!")
+        budget = self.budget_repo.cls(period, lim)
+        self.budget_repo.add(budget)
+        self.update_budget_data()
+        self.update_expense_data()
+    
+    def handle_budget_delete_button_clicked(self) -> None:
+        budget_pk = self.view.get_selected_budget()
+        self.budget_repo.delete(budget_pk)
         self.update_expense_data()

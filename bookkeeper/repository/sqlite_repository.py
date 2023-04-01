@@ -42,7 +42,7 @@ class SQLiteRepository(AbstractRepository[T]):
             ### Retrieve PK
             cur.execute(f'SELECT * FROM {self.table_name}')
             res = cur.fetchall()
-            self.last_pk = len(res)
+            self.last_pk = int(res[-1][0])
             pk = self.last_pk + 1
 
             ### Add data to table

@@ -122,9 +122,7 @@ class CategoryDialog(QtWidgets.QDialog):
         Extract clicked category pk from category tree
         """
         idx = self.tree.currentIndex()
-        print('idx =', idx)
         cat_name = idx.model().itemFromIndex(idx).text()
         cat_pk = self.cat_repo.get_all(where={'name': cat_name})[0].pk
-        print('pk =', cat_pk)
         return cat_pk
     

@@ -105,12 +105,31 @@ class MainWindow(QtWidgets.QMainWindow):
         self.category_dropdown.clear()
         for cat in data:
             self.category_dropdown.addItem(cat.name, cat.pk)
+    
+    def set_period_dropdown(self, data) -> None:
+        """
+        Fill in the period dropdown menu from budget_repo
+        """
+        en_ru = {'day': 'день',
+                 'week': 'неделя',
+                 'month': 'месяц',
+                 'year': 'год'}
+        self.period_dropdown.clear()
+        periods = ['day', 'week', 'month', 'year']
+        for p in periods:
+            self.period_dropdown.addItem(en_ru[p], p)
 
     def on_expense_add_button_clicked(self, slot) -> None:
         """
         This method executes when expense_add_button is clicked
         """
         self.expense_add_button.clicked.connect(slot)
+    
+    def on_budget_add_button_clicked(self, slot) -> None:
+        """
+        This method executes when budget_add_button is clicked
+        """
+        self.budget_add_button.clicked.connect(slot)
 
     def get_amount(self) -> int | None:
         """
@@ -120,6 +139,15 @@ class MainWindow(QtWidgets.QMainWindow):
         if not amount.isdigit() or int(amount) < 0:
             raise ValueError("Введенная сумма должна быть неотрицательным целым числом.")
         return int(amount)
+    
+    def get_lim(self) -> int | None:
+        """
+        Method that extracts budget lim in RUB from limit_line_edit
+        """
+        lim = self.limit_line_edit.text()
+        if not lim.isdigit() or int(lim) <= 0:
+            raise ValueError("Макс. сумма должна быть положительным целым числом.")
+        return int(lim)
                     
     def get_selected_cat(self) -> int:
         """
@@ -129,6 +157,15 @@ class MainWindow(QtWidgets.QMainWindow):
         idx = self.category_dropdown.currentIndex()
         cat_pk = self.category_dropdown.itemData(idx)
         return cat_pk
+    
+    def get_selected_period(self) -> int:
+        """
+        Method that extracts period of the added budget
+        from period dropdown menu
+        """
+        idx = self.period_dropdown.currentIndex()
+        period = self.period_dropdown.itemData(idx)
+        return period
                     
     def on_category_edit_button_clicked(self, slot) -> None:
         """
@@ -159,3 +196,17 @@ class MainWindow(QtWidgets.QMainWindow):
         idx = self.expenses_grid.selectedIndexes()[0]
         exp = idx.model().get_row(idx.row())
         return exp.pk
+    
+    def get_selected_budget(self) -> int:
+        """
+        Returns pk of a clicked budget in budget_grid
+        """
+        idx = self.budget_grid.selectedIndexes()[0]
+        budget = idx.model().get_row(idx.row())
+        return budget.pk
+    
+    def on_budget_delete_button_clicked(self, slot):
+        """
+        This method executes when delete_budget_button is clicked
+        """
+        self.budget_delete_button.clicked.connect(slot)
