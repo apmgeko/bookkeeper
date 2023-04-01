@@ -20,41 +20,65 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.layout = QtWidgets.QVBoxLayout()
 
+        ### Expense table
         self.layout.addWidget(QtWidgets.QLabel('Последние расходы'))
         self.expenses_grid = QtWidgets.QTableView()
         self.layout.addWidget(self.expenses_grid)
 
+        ### Expense table controls
+        self.expense_controls = QtWidgets.QGridLayout()
+
+        self.expense_controls.addWidget(QtWidgets.QLabel('Сумма'), 0, 0)
+
+        self.amount_line_edit = QtWidgets.QLineEdit()
+        self.expense_controls.addWidget(self.amount_line_edit, 0, 1)
+        self.expense_controls.addWidget(QtWidgets.QLabel('Категория'), 1, 0)
+
+        self.category_dropdown = QtWidgets.QComboBox()
+
+        self.expense_controls.addWidget(self.category_dropdown, 1, 1)
+
+        self.category_edit_button = QtWidgets.QPushButton('Редактировать категории')
+        self.expense_controls.addWidget(self.category_edit_button, 1, 2)
+        self.category_edit_button.clicked.connect(self.show_cats_dialog)
+
+        self.expense_add_button = QtWidgets.QPushButton('Добавить')
+        self.expense_controls.addWidget(self.expense_add_button, 2, 1)
+
+        self.expense_delete_button = QtWidgets.QPushButton('Удалить')
+        self.expense_controls.addWidget(self.expense_delete_button, 2, 2)
+
+        self.expense_control_widget = QtWidgets.QWidget()
+        self.expense_control_widget.setLayout(self.expense_controls)
+        self.layout.addWidget(self.expense_control_widget)
+
+        ### Budget table
         self.layout.addWidget(QtWidgets.QLabel('Бюджет'))
         self.budget_grid = QtWidgets.QTableView()
         self.layout.addWidget(self.budget_grid)
 
-        self.bottom_controls = QtWidgets.QGridLayout()
+        ### Budget table controls
+        self.budget_controls = QtWidgets.QGridLayout()
 
-        self.bottom_controls.addWidget(QtWidgets.QLabel('Сумма'), 0, 0)
+        self.budget_controls.addWidget(QtWidgets.QLabel('Макс. сумма'), 0, 0)
+        self.limit_line_edit = QtWidgets.QLineEdit()
+        self.budget_controls.addWidget(self.limit_line_edit, 0, 1)
 
-        self.amount_line_edit = QtWidgets.QLineEdit()
-        self.bottom_controls.addWidget(self.amount_line_edit, 0, 1)
-        self.bottom_controls.addWidget(QtWidgets.QLabel('Категория'), 1, 0)
+        self.budget_controls.addWidget(QtWidgets.QLabel('Период'), 1, 0)
+        self.period_dropdown = QtWidgets.QComboBox()
+        self.budget_controls.addWidget(self.period_dropdown, 1, 1)
 
-        self.category_dropdown = QtWidgets.QComboBox()
+        self.budget_add_button = QtWidgets.QPushButton('Добавить')
+        self.budget_controls.addWidget(self.budget_add_button, 2, 1)
 
-        self.bottom_controls.addWidget(self.category_dropdown, 1, 1)
+        self.budget_delete_button = QtWidgets.QPushButton('Удалить')
+        self.budget_controls.addWidget(self.budget_delete_button, 2, 2)
 
-        self.category_edit_button = QtWidgets.QPushButton('Редактировать')
-        self.bottom_controls.addWidget(self.category_edit_button, 1, 2)
-        self.category_edit_button.clicked.connect(self.show_cats_dialog)
+        self.budget_control_widget = QtWidgets.QWidget()
+        self.budget_control_widget.setLayout(self.budget_controls)
+        self.layout.addWidget(self.budget_control_widget)
 
-        self.expense_add_button = QtWidgets.QPushButton('Добавить')
-        self.bottom_controls.addWidget(self.expense_add_button, 2, 1)
-
-        self.expense_delete_button = QtWidgets.QPushButton('Удалить')
-        self.bottom_controls.addWidget(self.expense_delete_button, 2, 2)
-
-        self.bottom_widget = QtWidgets.QWidget()
-        self.bottom_widget.setLayout(self.bottom_controls)
-
-        self.layout.addWidget(self.bottom_widget)
-
+        ### Misc
         self.widget = QtWidgets.QWidget()
         self.widget.setLayout(self.layout)
 
@@ -134,5 +158,4 @@ class MainWindow(QtWidgets.QMainWindow):
         """
         idx = self.expenses_grid.selectedIndexes()[0]
         exp = idx.model().get_row(idx.row())
-        print('exp.pk =', exp.pk)
         return exp.pk
