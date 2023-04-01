@@ -1,12 +1,15 @@
 import sqlite3
 from inspect import get_annotations
-from bookkeeper.repository.abstract_repository \
-    import AbstractRepository, T
 from typing import Any
 from datetime import datetime
+from bookkeeper.repository.abstract_repository \
+    import AbstractRepository, T
 
 
 class SQLiteRepository(AbstractRepository[T]):
+    """
+    Class for repository avaliable to SQL queries
+    """
     def __init__(self, db_file: str, cls: type) -> None:
         self.db_file = db_file
         self.cls = cls
@@ -19,13 +22,13 @@ class SQLiteRepository(AbstractRepository[T]):
             cur = con.cursor()
             cur.execute('PRAGMA foreign_keys = ON')
             ### Create table if not exists
-            q = f'CREATE TABLE IF NOT EXISTS {self.table_name} (pk, {names})'
-            cur.execute(q)
+            query = f'CREATE TABLE IF NOT EXISTS {self.table_name} (pk, {names})'
+            cur.execute(query)
         con.close()
 
     def add(self, obj: T) -> int:
         names = ', '.join(self.fields.keys())
-        p = ', '.join("?" * len(self.fields))
+        placeholder = ', '.join("?" * len(self.fields))
         values = [getattr(obj, x) for x in self.fields]
 
         with sqlite3.connect(self.db_file) as con:
@@ -33,8 +36,8 @@ class SQLiteRepository(AbstractRepository[T]):
             cur.execute('PRAGMA foreign_keys = ON')
 
             ### Create table if not exists
-            q = f'CREATE TABLE IF NOT EXISTS {self.table_name} (pk, {names})'
-            cur.execute(q)
+            query = f'CREATE TABLE IF NOT EXISTS {self.table_name} (pk, {names})'
+            cur.execute(query)
 
             ### Retrieve PK
             cur.execute(f'SELECT * FROM {self.table_name}')
@@ -43,8 +46,8 @@ class SQLiteRepository(AbstractRepository[T]):
             pk = self.last_pk + 1
 
             ### Add data to table
-            q = f'INSERT INTO {self.table_name} (pk, {names}) VALUES({pk}, {p})'
-            cur.execute(q, values)
+            query = f'INSERT INTO {self.table_name} (pk, {names}) VALUES({pk}, {placeholder})'
+            cur.execute(query, values)
             obj.pk = cur.lastrowid
             self.last_pk = obj.pk
         con.close()
@@ -80,8 +83,7 @@ class SQLiteRepository(AbstractRepository[T]):
         con.close()
         if res == []:
             return None
-        else:
-            obj = self.build_object(self.fields, res[0])
+        obj = self.build_object(self.fields, res[0])
         return obj
 
     def get_all(self, where: dict[str, Any] | None = None) -> list[T]:
@@ -98,13 +100,13 @@ class SQLiteRepository(AbstractRepository[T]):
             else:
                 fields, vals = list(where.keys()), list(where.values())
                 condition = ' AND '.join(f'{f} = ?' for f in fields)
-                q = f'SELECT * FROM {self.table_name} WHERE ' + condition
-                cur.execute(q, vals)
+                query = f'SELECT * FROM {self.table_name} WHERE ' + condition
+                cur.execute(query, vals)
             res = cur.fetchall()
         con.close()
         objs = [self.get(row[0]) for row in res]
         return objs
-    
+        
     def get_all_like(self, where: dict[str, Any] | None = None) -> list[T]:
         with sqlite3.connect(self.db_file) as con:
             cur = con.cursor()
@@ -114,8 +116,8 @@ class SQLiteRepository(AbstractRepository[T]):
             else:
                 fields, vals = list(where.keys()), list(where.values())
                 condition = ' AND '.join(f'{f} LIKE ?' for f in fields)
-                q = f'SELECT * FROM {self.table_name} WHERE ' + condition
-                cur.execute(q, vals)
+                query = f'SELECT * FROM {self.table_name} WHERE ' + condition
+                cur.execute(query, vals)
             res = cur.fetchall()
         con.close()
         objs = [self.get(row[0]) for row in res]
@@ -134,8 +136,8 @@ class SQLiteRepository(AbstractRepository[T]):
         with sqlite3.connect(self.db_file) as con:
             cur = con.cursor()
             cur.execute('PRAGMA foreign_keys = ON')
-            q = f'UPDATE {self.table_name} SET ' + names + ' WHERE pk = ?'
-            cur.execute(q, values)
+            query = f'UPDATE {self.table_name} SET ' + names + ' WHERE pk = ?'
+            cur.execute(query, values)
         con.close()
 
     def delete(self, pk: int) -> None:

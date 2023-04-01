@@ -1,9 +1,12 @@
+from collections import deque
 from PySide6 import QtWidgets
 from PySide6.QtGui import *
-from collections import deque
 
 
 class CategoryDialog(QtWidgets.QDialog):
+    """
+    Class for category visualisation via GUI
+    """
     def __init__(self, cat_repo) -> None:
         super().__init__()
         self.cat_repo = cat_repo
@@ -12,6 +15,9 @@ class CategoryDialog(QtWidgets.QDialog):
         self.tree.expandAll()
 
     def show_cat_tree(self):
+        """
+        Visualisation of category tree
+        """
         self.tree = QtWidgets.QTreeView(self)
         layout = QtWidgets.QVBoxLayout(self)
         layout.addWidget(self.tree)
@@ -20,8 +26,11 @@ class CategoryDialog(QtWidgets.QDialog):
         self.tree.header().setDefaultSectionSize(180)
         self.tree.setModel(self.model)
         return layout
-    
+                    
     def setup(self):
+        """
+        Help function for class initialisation
+        """
         self.setWindowTitle('Редактирование категорий')
         self.setGeometry(300, 100, 600, 300)
 
@@ -46,6 +55,9 @@ class CategoryDialog(QtWidgets.QDialog):
         layout.addWidget(self.bottom_widget)
 
     def importData(self, root=None):
+        """
+        Method to build the tree from import data
+        """
         data = self.cat_repo.get_all()
         data = [{'unique_id': c.pk, 'category_name': c.name, 'parent_id': c.parent} for c in data]
         self.model.setRowCount(0)
@@ -68,32 +80,51 @@ class CategoryDialog(QtWidgets.QDialog):
             seen[unique_id] = parent.child(parent.rowCount() - 1)
 
     def set_category_dropdown(self, data):
+        """
+        Fills in category dropdown menu from cat_repo
+        """
         self.category_dropdown.clear()
         self.category_dropdown.addItem('', 0)
         for cat in data:
             self.category_dropdown.addItem(cat.name, cat.pk)
-    
+                    
     def on_add_category_button_clicked(self, slot):
+        """
+        This method executes when add_category_button is clicked
+        """
         self.add_category_button.clicked.connect(slot)
-
+            
     def on_delete_category_button_clicked(self, slot):
+        """
+        This method executes when delete_category_button is clicked
+        """
         self.delete_category_button.clicked.connect(slot)
-    
+
     def get_name(self):
+        """
+        Extract added category name from new_category_line_edit
+        """
         name = self.new_category_line_edit.text()
         if name == '':
             raise ValueError("Название категории не может быть пустым.")
         return name
-    
+
     def get_selected_cat(self) -> int:
+        """
+        Extract selected category pk from category dropdown menu
+        """
         idx = self.category_dropdown.currentIndex()
         cat_pk = self.category_dropdown.itemData(idx)
         return cat_pk
-    
+
     def get_clicked_category(self) -> int:
+        """
+        Extract clicked category pk from category tree
+        """
         idx = self.tree.currentIndex()
         print('idx =', idx)
         cat_name = idx.model().itemFromIndex(idx).text()
         cat_pk = self.cat_repo.get_all(where={'name': cat_name})[0].pk
         print('pk =', cat_pk)
         return cat_pk
+    

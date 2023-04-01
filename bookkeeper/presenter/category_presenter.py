@@ -1,4 +1,7 @@
 class CategoryPresenter():
+    """
+    Class for presenting categories in GUI
+    """
     def __init__(self, model, view, cat_repo) -> None:
         self.view = view
         self.model = model

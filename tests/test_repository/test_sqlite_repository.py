@@ -47,7 +47,6 @@ def repo(custom_class):
 def test_crud(repo, custom_class):
     obj = custom_class()
     pk = repo.add(obj)
-    print(f'pk = {pk}, obj.pk = {obj.pk}')
     assert obj.pk == pk
     assert repo.get(pk) == obj
     obj2 = custom_class()
@@ -64,10 +63,8 @@ def test_get_all(repo, custom_class):
         repo.delete(repo.last_pk)
     for o in objects:
         repo.add(o)
-    print(len(repo.get_all()))
     assert repo.get_all() == objects
     for i in range(5):
-        print(repo.last_pk)
         repo.delete(repo.last_pk)
 
 def test_get_all_with_condition(repo, custom_class):
@@ -81,7 +78,6 @@ def test_get_all_with_condition(repo, custom_class):
     assert repo.get_all({'field_str': 'test'}) == objects
     assert repo.get_all({'field_int': 3}) == [objects[3]]
     for i in range(5):
-        print(repo.last_pk)
         repo.delete(repo.last_pk)
     
 
@@ -103,13 +99,9 @@ def test_get_all_like(repo, custom_class):
     got_all_like = repo.get_all_like({'field_int': '1%'})
     check_list = [objects[1]]
     for i in range(10, 15):
-        #print(i)
         check_list.append(objects[i])
-    print(got_all_like)
-    print(check_list)
     assert got_all_like == check_list
     for i in range(15):
-        print(repo.last_pk)
         repo.delete(repo.last_pk)
 
 """

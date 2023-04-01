@@ -17,36 +17,36 @@ def repo():
 
 
 def test_create_with_full_args_list():
-    bd = Budget(limit = 1000, period = 'day', spent = 100, pk = 1)
-    assert bd.limit == 1000
+    bd = Budget(lim = 1000, period = 'day', spent = 100, pk = 1)
+    assert bd.lim == 1000
     assert bd.period == 'day'
     assert bd.spent == 100
     assert bd.pk == 1
 
-    bw = Budget(limit = 2000, period = 'week', spent = 200, pk = 2)
-    assert bw.limit == 2000
+    bw = Budget(lim = 2000, period = 'week', spent = 200, pk = 2)
+    assert bw.lim == 2000
     assert bw.period == 'week'
     assert bw.spent == 200
     assert bw.pk == 2
 
-    bm = Budget(limit = 3000, period = 'month', spent = 300, pk = 3)
-    assert bm.limit == 3000
+    bm = Budget(lim = 3000, period = 'month', spent = 300, pk = 3)
+    assert bm.lim == 3000
     assert bm.period == 'month'
     assert bm.spent == 300
     assert bm.pk == 3
 
-    by = Budget(limit = 4000, period = 'year', spent = 400, pk = 4)
-    assert by.limit == 4000
+    by = Budget(lim = 4000, period = 'year', spent = 400, pk = 4)
+    assert by.lim == 4000
     assert by.period == 'year'
     assert by.spent == 400
     assert by.pk == 4
 
 
 def test_update(repo):
-    bd = Budget(limit = 1000, period = 'day', spent = 100, pk = 1)
-    bw = Budget(limit = 2000, period = 'week', spent = 200, pk = 2)
-    bm = Budget(limit = 3000, period = 'month', spent = 300, pk = 3)
-    by = Budget(limit = 4000, period = 'year', spent = 400, pk = 4)
+    bd = Budget(lim = 1000, period = 'day', spent = 100, pk = 1)
+    bw = Budget(lim = 2000, period = 'week', spent = 200, pk = 2)
+    bm = Budget(lim = 3000, period = 'month', spent = 300, pk = 3)
+    by = Budget(lim = 4000, period = 'year', spent = 400, pk = 4)
 
     exp = Expense(category = 1, amount = 10)
     repo.add(exp)
@@ -64,7 +64,7 @@ def test_update(repo):
 
 def test_create_unexistent_period():
     with pytest.raises(ValueError):
-        b = Budget(limit = 1000, period = 'decade', spent = 100, pk = 1)
+        b = Budget(lim = 1000, period = 'decade', spent = 100, pk = 1)
 
 '''
 def test_create_brief():
