@@ -1,7 +1,6 @@
-from PySide6 import QtWidgets, QtCore
+from PySide6 import QtWidgets
 from bookkeeper.view.table_view import TableModel
 from bookkeeper.models.budget import Budget
-from bookkeeper.models.category import Category
 from bookkeeper.models.expense import Expense
 from bookkeeper.view.category_view import CategoryDialog
 from bookkeeper.presenter.category_presenter import CategoryPresenter
@@ -20,12 +19,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.layout = QtWidgets.QVBoxLayout()
 
-        ### Expense table
+        # Expense table
         self.layout.addWidget(QtWidgets.QLabel('Последние расходы'))
         self.expenses_grid = QtWidgets.QTableView()
         self.layout.addWidget(self.expenses_grid)
 
-        ### Expense table controls
+        # Expense table controls
         self.expense_controls = QtWidgets.QGridLayout()
 
         self.expense_controls.addWidget(QtWidgets.QLabel('Сумма'), 0, 0)
@@ -52,12 +51,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.expense_control_widget.setLayout(self.expense_controls)
         self.layout.addWidget(self.expense_control_widget)
 
-        ### Budget table
+        # Budget table
         self.layout.addWidget(QtWidgets.QLabel('Бюджет'))
         self.budget_grid = QtWidgets.QTableView()
         self.layout.addWidget(self.budget_grid)
 
-        ### Budget table controls
+        # Budget table controls
         self.budget_controls = QtWidgets.QGridLayout()
 
         self.budget_controls.addWidget(QtWidgets.QLabel('Макс. сумма'), 0, 0)
@@ -78,7 +77,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.budget_control_widget.setLayout(self.budget_controls)
         self.layout.addWidget(self.budget_control_widget)
 
-        ### Misc
+        # Misc
         self.widget = QtWidgets.QWidget()
         self.widget.setLayout(self.layout)
 
@@ -105,7 +104,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.category_dropdown.clear()
         for cat in data:
             self.category_dropdown.addItem(cat.name, cat.pk)
-    
+
     def set_period_dropdown(self, data) -> None:
         """
         Fill in the period dropdown menu from budget_repo
@@ -124,7 +123,7 @@ class MainWindow(QtWidgets.QMainWindow):
         This method executes when expense_add_button is clicked
         """
         self.expense_add_button.clicked.connect(slot)
-    
+
     def on_budget_add_button_clicked(self, slot) -> None:
         """
         This method executes when budget_add_button is clicked
@@ -139,7 +138,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if not amount.isdigit() or int(amount) < 0:
             raise ValueError("Введенная сумма должна быть неотрицательным целым числом.")
         return int(amount)
-    
+
     def get_lim(self) -> int | None:
         """
         Method that extracts budget lim in RUB from limit_line_edit
@@ -148,7 +147,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if not lim.isdigit() or int(lim) <= 0:
             raise ValueError("Макс. сумма должна быть положительным целым числом.")
         return int(lim)
-                    
+
     def get_selected_cat(self) -> int:
         """
         Method that extracts category of the added expense
@@ -157,7 +156,7 @@ class MainWindow(QtWidgets.QMainWindow):
         idx = self.category_dropdown.currentIndex()
         cat_pk = self.category_dropdown.itemData(idx)
         return cat_pk
-    
+
     def get_selected_period(self) -> int:
         """
         Method that extracts period of the added budget
@@ -166,7 +165,7 @@ class MainWindow(QtWidgets.QMainWindow):
         idx = self.period_dropdown.currentIndex()
         period = self.period_dropdown.itemData(idx)
         return period
-                    
+
     def on_category_edit_button_clicked(self, slot) -> None:
         """
         This method executes when category_edit_button is clicked
@@ -196,7 +195,7 @@ class MainWindow(QtWidgets.QMainWindow):
         idx = self.expenses_grid.selectedIndexes()[0]
         exp = idx.model().get_row(idx.row())
         return exp.pk
-    
+
     def get_selected_budget(self) -> int:
         """
         Returns pk of a clicked budget in budget_grid
@@ -204,7 +203,7 @@ class MainWindow(QtWidgets.QMainWindow):
         idx = self.budget_grid.selectedIndexes()[0]
         budget = idx.model().get_row(idx.row())
         return budget.pk
-    
+
     def on_budget_delete_button_clicked(self, slot):
         """
         This method executes when delete_budget_button is clicked

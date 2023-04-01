@@ -8,11 +8,21 @@ class ExpensePresenter():
         self.budget_repo = budget_repo
         self.exp_repo = exp_repo
         self.cat_repo = cat_repo
-        self.view.on_expense_add_button_clicked(self.handle_add_expense_button_clicked)
-        self.view.on_expense_delete_button_clicked(self.handle_expense_delete_button_clicked)
-        self.view.on_category_edit_button_clicked(self.handle_category_edit_button_clicked)
-        self.view.on_budget_add_button_clicked(self.handle_budget_add_button_clicked)
-        self.view.on_budget_delete_button_clicked(self.handle_budget_delete_button_clicked)
+        self.view.on_expense_add_button_clicked(
+            self.handle_add_expense_button_clicked
+            )
+        self.view.on_expense_delete_button_clicked(
+            self.handle_expense_delete_button_clicked
+            )
+        self.view.on_category_edit_button_clicked(
+            self.handle_category_edit_button_clicked
+            )
+        self.view.on_budget_add_button_clicked(
+            self.handle_budget_add_button_clicked
+            )
+        self.view.on_budget_delete_button_clicked(
+            self.handle_budget_delete_button_clicked
+            )
 
     def update_expense_data(self) -> None:
         """
@@ -49,16 +59,16 @@ class ExpensePresenter():
         exp = self.exp_repo.cls(amount, cat_pk)
         self.exp_repo.add(exp)
         self.update_expense_data()
-    
+
     def handle_category_edit_button_clicked(self):
         self.view.show_cats_dialog(self.cat_repo)
         self.view.set_category_dropdown(self.cat_repo.get_all())
-    
+
     def handle_expense_delete_button_clicked(self) -> None:
         exp_pk = self.view.get_selected_expense()
         self.exp_repo.delete(exp_pk)
         self.update_expense_data()
-    
+
     def handle_budget_add_button_clicked(self) -> None:
         lim = self.view.get_lim()
         period = self.view.get_selected_period()
@@ -68,7 +78,7 @@ class ExpensePresenter():
         self.budget_repo.add(budget)
         self.update_budget_data()
         self.update_expense_data()
-    
+
     def handle_budget_delete_button_clicked(self) -> None:
         budget_pk = self.view.get_selected_budget()
         self.budget_repo.delete(budget_pk)

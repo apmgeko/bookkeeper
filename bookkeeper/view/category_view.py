@@ -26,7 +26,7 @@ class CategoryDialog(QtWidgets.QDialog):
         self.tree.header().setDefaultSectionSize(180)
         self.tree.setModel(self.model)
         return layout
-                    
+
     def setup(self):
         """
         Help function for class initialisation
@@ -59,7 +59,9 @@ class CategoryDialog(QtWidgets.QDialog):
         Method to build the tree from import data
         """
         data = self.cat_repo.get_all()
-        data = [{'unique_id': c.pk, 'category_name': c.name, 'parent_id': c.parent} for c in data]
+        data = [{'unique_id': c.pk,
+                 'category_name': c.name,
+                 'parent_id': c.parent} for c in data]
         self.model.setRowCount(0)
         if root is None:
             root = self.model.invisibleRootItem()
@@ -87,13 +89,13 @@ class CategoryDialog(QtWidgets.QDialog):
         self.category_dropdown.addItem('', 0)
         for cat in data:
             self.category_dropdown.addItem(cat.name, cat.pk)
-                    
+
     def on_add_category_button_clicked(self, slot):
         """
         This method executes when add_category_button is clicked
         """
         self.add_category_button.clicked.connect(slot)
-            
+
     def on_delete_category_button_clicked(self, slot):
         """
         This method executes when delete_category_button is clicked
@@ -125,4 +127,3 @@ class CategoryDialog(QtWidgets.QDialog):
         cat_name = idx.model().itemFromIndex(idx).text()
         cat_pk = self.cat_repo.get_all(where={'name': cat_name})[0].pk
         return cat_pk
-    

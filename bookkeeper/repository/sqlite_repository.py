@@ -21,32 +21,35 @@ class SQLiteRepository(AbstractRepository[T]):
         with sqlite3.connect(self.db_file) as con:
             cur = con.cursor()
             cur.execute('PRAGMA foreign_keys = ON')
-            ### Create table if not exists
+            # Create table if not exists
             query = f'CREATE TABLE IF NOT EXISTS {self.table_name} (pk, {names})'
             cur.execute(query)
         con.close()
 
     def add(self, obj: T) -> int:
         names = ', '.join(self.fields.keys())
-        placeholder = ', '.join("?" * len(self.fields))
+        pholder = ', '.join("?" * len(self.fields))
         values = [getattr(obj, x) for x in self.fields]
 
         with sqlite3.connect(self.db_file) as con:
             cur = con.cursor()
             cur.execute('PRAGMA foreign_keys = ON')
 
-            ### Create table if not exists
+            # Create table if not exists
             query = f'CREATE TABLE IF NOT EXISTS {self.table_name} (pk, {names})'
             cur.execute(query)
 
-            ### Retrieve PK
+            # Retrieve PK
             cur.execute(f'SELECT * FROM {self.table_name}')
             res = cur.fetchall()
-            self.last_pk = int(res[-1][0])
+            if res == []:
+                self.last_pk = 0
+            else:
+                self.last_pk = int(res[-1][0])
             pk = self.last_pk + 1
 
-            ### Add data to table
-            query = f'INSERT INTO {self.table_name} (pk, {names}) VALUES({pk}, {placeholder})'
+            # Add data to table
+            query = f'INSERT INTO {self.table_name} (pk, {names}) VALUES({pk}, {pholder})'
             cur.execute(query, values)
             obj.pk = cur.lastrowid
             self.last_pk = obj.pk
@@ -106,7 +109,7 @@ class SQLiteRepository(AbstractRepository[T]):
         con.close()
         objs = [self.get(row[0]) for row in res]
         return objs
-        
+
     def get_all_like(self, where: dict[str, Any] | None = None) -> list[T]:
         with sqlite3.connect(self.db_file) as con:
             cur = con.cursor()

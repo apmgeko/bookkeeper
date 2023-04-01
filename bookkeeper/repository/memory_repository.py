@@ -33,7 +33,7 @@ class MemoryRepository(AbstractRepository[T]):
             return list(self._container.values())
         return [obj for obj in self._container.values()
                 if all(getattr(obj, attr) == value for attr, value in where.items())]
-            
+
     def get_all_like(self, where: dict[str, Any] | None = None) -> list[T]:
         return self.get_all(where)
 
